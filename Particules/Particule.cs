@@ -85,7 +85,7 @@ namespace Brownien.Particules {
 
                                 var ycollision = speed.Y * (xcollision - position.X) / speed.X - position.Y;
 
-                                //Bounce part 1
+                                //Bounce particule 1
                                 var xbounce = xcollision - xfinal;
                                 var ybounce = ycollision - yfinal;
                                 Console.WriteLine(xcollision + " - " + ycollision);
@@ -94,7 +94,7 @@ namespace Brownien.Particules {
                                 Console.WriteLine(position + " - " + speed);
                                 speed = -speed;
 
-                                //Bounce part 2
+                                //Bounce particule 2
                                 var xbounce2 = xcollision - xfinal2;
                                 var ybounce2 = ycollision - yfinal2;
                                 Console.WriteLine(part2.position + " - " + part2.speed);
@@ -158,22 +158,22 @@ namespace Brownien.Particules {
 
                         var tangent = new Vector3(inter1.X - inter2.X, inter1.Y - inter2.Y, 0);
 
-                        var between1 = tangent - tempPos1;
-                        var crossprod1 = 0.5 * (tempPos1.LengthSquared() + tangent.LengthSquared() - between1.LengthSquared());
+                        //var between1 = tangent - tempPos1;
+                        var crossprod1 = tempPos1.X * tangent.X + tempPos1.Y * tangent.Y;
                         var cosa1 = crossprod1 / (tempPos1.Length() * tangent.Length());
                         var a1 = Math.Acos(cosa1);
                         var newSpeed1 = new Vector3((float) (cosa1 * speed.X - Math.Sin(a1) * speed.Y),
                             (float) (Math.Sin(a1) * speed.X + cosa1 * speed.Y), 0);
-                        Console.WriteLine(speed + "  " + newSpeed1);
-                        
+                        Console.WriteLine(speed + "  " + newSpeed1 + "  " + a1);
+
                         //speed = -speed;
                         //position -= endPos1 - tempPos1;
                         speed = newSpeed1;
                         position += newSpeed1 * deltaT;
 
-                        
-                        var between2 = tangent - tempPos2;
-                        var crossprod2 = 0.5 * (tempPos2.LengthSquared() + tangent.LengthSquared() - between2.LengthSquared());
+
+                        //var between2 = tangent - tempPos2;
+                        var crossprod2 = tempPos2.X * tangent.X + tempPos2.Y * tangent.Y;
                         var cosa2 = crossprod2 / (tempPos2.Length() * tangent.Length());
                         var a2 = Math.Acos(cosa2);
                         var newSpeed2 = new Vector3((float) (cosa2 * speed2.X - Math.Sin(a2) * speed2.Y),
