@@ -52,6 +52,7 @@ namespace Brownien {
             for (var i = 0; i < Particule.particules.Length; i++) {
                 var b = new Big(new Vector3(i * 50, i * 50, 0));
                 b.texture = new Random().Next(0, 2) == 0 ? t1 : t2;
+                b.mass = (float) (new Random().NextDouble() * 5f);
             }
 
             drawer = new SpriteBatch(GraphicsDevice);

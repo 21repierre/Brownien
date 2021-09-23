@@ -8,6 +8,7 @@ namespace Brownien.Particules {
         private static int particuleCounter;
 
         private static readonly float deltaT = 0.1f;
+        public float mass = 1;
 
         public Vector3 position;
         public float size = 32;
@@ -65,8 +66,7 @@ namespace Brownien.Particules {
                         //TODO: ici aussi /!\ speedx=0
                         if (speed.X > 0) {
                             if (position.X <= xcollision && xfinal >= xcollision) firstCheck = true;
-                        }
-                        else {
+                        } else {
                             if (position.X >= xcollision && xfinal <= xcollision) firstCheck = true;
                         }
 
@@ -74,8 +74,7 @@ namespace Brownien.Particules {
                             Console.WriteLine("first check");
                             if (part2.speed.X > 0) {
                                 if (part2.position.X <= xcollision && xfinal2 >= xcollision) secondCheck = true;
-                            }
-                            else {
+                            } else {
                                 if (part2.position.X <= xcollision && xfinal2 <= xcollision) secondCheck = true;
                             }
 
@@ -167,15 +166,21 @@ namespace Brownien.Particules {
 
                         var speed1T = v1T * tangent;
                         var speed2T = v2T * tangent;
-                        
-                        var vv1N = ()/();
+
+                        var vv1N = (v1N * (mass - part2.mass) + 2 * part2.mass * v2N) / (mass + part2.mass);
+                        var vv2N = (v2N * (part2.mass - mass) + 2 * mass * v1N) / (mass + part2.mass);
+
+                        var speed1N = vv1N * normal;
+                        var speed2N = vv2N * normal;
+
+                        speed = speed1T + speed1N;
+                        part2.speed = speed2T + speed2N;
 
                         break;
                     }
                 }
             }
         }
-
 
 
         private int findCircleIntersect(
