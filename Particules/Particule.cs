@@ -157,35 +157,26 @@ namespace Brownien.Particules {
                         Console.WriteLine("COLLISION " + inters);
 
                         var tangent = new Vector3(inter1.X - inter2.X, inter1.Y - inter2.Y, 0);
+                        tangent.Normalize();
+                        var normal = new Vector3(-tangent.Y, tangent.X, 0);
 
-                        //var between1 = tangent - tempPos1;
-                        var crossprod1 = tempPos1.X * tangent.X + tempPos1.Y * tangent.Y;
-                        var cosa1 = crossprod1 / (tempPos1.Length() * tangent.Length());
-                        var a1 = Math.Acos(cosa1);
-                        var newSpeed1 = new Vector3((float) (cosa1 * speed.X - Math.Sin(a1) * speed.Y),
-                            (float) (Math.Sin(a1) * speed.X + cosa1 * speed.Y), 0);
-                        Console.WriteLine(speed + "  " + newSpeed1 + "  " + a1);
+                        var v1T = tangent.dot(speed1);
+                        var v2T = tangent.dot(speed2);
+                        var v1N = normal.dot(speed1);
+                        var v2N = normal.dot(speed2);
 
-                        //speed = -speed;
-                        //position -= endPos1 - tempPos1;
-                        speed = newSpeed1;
-                        position += newSpeed1 * deltaT;
-
-
-                        //var between2 = tangent - tempPos2;
-                        var crossprod2 = tempPos2.X * tangent.X + tempPos2.Y * tangent.Y;
-                        var cosa2 = crossprod2 / (tempPos2.Length() * tangent.Length());
-                        var a2 = Math.Acos(cosa2);
-                        var newSpeed2 = new Vector3((float) (cosa2 * speed2.X - Math.Sin(a2) * speed2.Y),
-                            (float) (Math.Sin(a2) * speed2.X + cosa2 * speed2.Y), 0);
-                        part2.speed = newSpeed2;
-                        part2.position += newSpeed2 * deltaT;
+                        var speed1T = v1T * tangent;
+                        var speed2T = v2T * tangent;
+                        
+                        var vv1N = ()/();
 
                         break;
                     }
                 }
             }
         }
+
+
 
         private int findCircleIntersect(
             float cx0, float cy0, float radius0,
