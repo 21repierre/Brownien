@@ -20,94 +20,11 @@ namespace Brownien.Particules {
             particuleCounter++;
         }
 
-        public abstract void update(GameTime time);
+        public Vector3 center => position + new Vector3(size, size, size);
 
         public abstract Texture2D getTexture();
 
-        public void __old_calcCollision() {
-            var parts = new Particule[particules.Length - 1];
-            var x1 = position.X;
-            var y1 = position.Y;
-            var r1 = Math.Pow(y1 + speed.Y, 2) + Math.Pow(x1 + speed.X, 2);
-            foreach (var part2 in particules)
-                if (this != part2) {
-                    var x2 = part2.position.X;
-                    var y2 = part2.position.Y;
-                    var r2 = Math.Pow(y2 + part2.speed.Y, 2) + Math.Pow(x2 + part2.speed.X, 2);
-
-                    var a = (r1 - r2 - x1 * x1 - y1 * y1 + x2 * x2 - y2 * y2) / (2 * y2 - 2 * y2);
-                    var d = (x2 - x1) / (y2 - y1);
-
-                    var A = d * d + 1;
-                    var B = -2 * x1 + 2 * y1 * d - 2 * a * d;
-                    var C = x1 * x1 + y1 * y1 + -2 * y1 * a + a * a - r1;
-
-                    var DELTA = B * B - 4 * A * C;
-
-                    if (DELTA >= 0 || true) {
-                        //Console.WriteLine("delta ok");
-                        //POTENTIELLE COLLISION
-                        // TODO: attention au divide par 0 donc a refaire si v selon on axe = 0
-                        var xfinal = position.X + speed.X;
-                        var xfinal2 = part2.position.X + part2.speed.X;
-                        var yfinal = position.Y + speed.Y;
-                        var yfinal2 = part2.position.Y + part2.speed.Y;
-
-                        var xcollision =
-                            ((position.Y - part2.position.Y) * speed.X * part2.speed.X +
-                                speed.Y * part2.speed.X * position.X - part2.speed.Y * speed.X * part2.position.X) /
-                            (speed.Y * part2.speed.X - part2.speed.Y * speed.X);
-
-                        //Si xcollision € droite_speed_1 et droite_speed_2 alors y'a collision
-
-                        var firstCheck = false;
-                        var secondCheck = false;
-
-                        //TODO: ici aussi /!\ speedx=0
-                        if (speed.X > 0) {
-                            if (position.X <= xcollision && xfinal >= xcollision) firstCheck = true;
-                        } else {
-                            if (position.X >= xcollision && xfinal <= xcollision) firstCheck = true;
-                        }
-
-                        if (firstCheck) {
-                            Console.WriteLine("first check");
-                            if (part2.speed.X > 0) {
-                                if (part2.position.X <= xcollision && xfinal2 >= xcollision) secondCheck = true;
-                            } else {
-                                if (part2.position.X <= xcollision && xfinal2 <= xcollision) secondCheck = true;
-                            }
-
-                            if (secondCheck) {
-                                //Y a collision
-                                Console.WriteLine("collide");
-
-                                var ycollision = speed.Y * (xcollision - position.X) / speed.X - position.Y;
-
-                                //Bounce particule 1
-                                var xbounce = xcollision - xfinal;
-                                var ybounce = ycollision - yfinal;
-                                Console.WriteLine(xcollision + " - " + ycollision);
-                                Console.WriteLine(position + " - " + speed);
-                                position = new Vector3(xbounce, ybounce, 0);
-                                Console.WriteLine(position + " - " + speed);
-                                speed = -speed;
-
-                                //Bounce particule 2
-                                var xbounce2 = xcollision - xfinal2;
-                                var ybounce2 = ycollision - yfinal2;
-                                Console.WriteLine(part2.position + " - " + part2.speed);
-                                part2.position = new Vector3(xbounce2, ybounce2, 0);
-                                part2.speed = -part2.speed;
-                                Console.WriteLine(part2.position + " - " + part2.speed);
-                                //Game1.stopDrawing = true;
-                            }
-                        }
-                    }
-                }
-        }
-
-        public void calcCollision() {
+        public void _old_calcCollision() {
             foreach (var part2 in particules) {
                 if (part2 == this) continue;
 
@@ -117,12 +34,29 @@ namespace Brownien.Particules {
                 var speed1 = speed;
                 var speed2 = part2.speed;
 
-                if (findCircleIntersect(pos1.X, pos1.Y, size, pos2.X, pos2.Y, size, out _,
-                    out _) > 0) {
-                    speed = -speed;
-                    part2.speed = -part2.speed;
-                    position += speed;
-                    part2.position += part2.speed;
+                Vector2 i1, i2;
+                if (findCircleIntersect(pos1.X, pos1.Y, size, pos2.X, pos2.Y, size, out i1,
+                    out i2) > 0) {
+                    var tangent = new Vector3(i1.X - i2.X, i1.Y - i2.Y, 0);
+                    tangent.Normalize();
+                    var normal = new Vector3(-tangent.Y, tangent.X, 0);
+
+                    var v1T = tangent.dot(speed1);
+                    var v2T = tangent.dot(speed2);
+                    var v1N = normal.dot(speed1);
+                    var v2N = normal.dot(speed2);
+
+                    var speed1T = v1T * tangent;
+                    var speed2T = v2T * tangent;
+
+                    var vv1N = (v1N * (mass - part2.mass) + 2 * part2.mass * v2N) / (mass + part2.mass);
+                    var vv2N = (v2N * (part2.mass - mass) + 2 * mass * v1N) / (mass + part2.mass);
+
+                    var speed1N = vv1N * normal;
+                    var speed2N = vv2N * normal;
+
+                    speed = speed1T + speed1N;
+                    part2.speed = speed2T + speed2N;
                 }
 
                 /*
@@ -182,6 +116,31 @@ namespace Brownien.Particules {
             }
         }
 
+        public static void update(GameTime time) {
+            foreach (var particule in particules) {
+                //particule.position += particule.speed * (float) time.ElapsedGameTime.TotalSeconds;
+                var position = particule.position + particule.speed * (float) time.ElapsedGameTime.TotalSeconds;
+
+                if (position.X <= 0 || position.X + 2 * particule.size >= Game1.graphics.PreferredBackBufferWidth)
+                    particule.speed.X = -particule.speed.X;
+                else if (position.Y <= 0 || position.Y + 2 * particule.size >= Game1.graphics.PreferredBackBufferHeight) particule.speed.Y = -particule.speed.Y;
+
+                foreach (var other in particules)
+                    if (other != particule)
+                        if ((position - other.position).Length() <= other.size + particule.size) {
+                            var v1 = particule.speed;
+                            var x1 = position;
+                            var v2 = other.speed;
+                            var x2 = other.position;
+                            var v1p = v1 - 2 * other.mass / (particule.mass + other.mass) * (v1 - v2).dot(x1 - x2) / (x1 - x2).LengthSquared() * (x1 - x2);
+                            var v2p = v2 - 2 * particule.mass / (particule.mass + other.mass) * (v2 - v1).dot(x2 - x1) / (x2 - x1).LengthSquared() * (x2 - x1);
+                            particule.speed = v1p;
+                            other.speed = v2p;
+                        }
+
+                particule.position += particule.speed * (float) time.ElapsedGameTime.TotalSeconds;
+            }
+        }
 
         private int findCircleIntersect(
             float cx0, float cy0, float radius0,

@@ -24,7 +24,7 @@ namespace Brownien {
 
         protected override void Initialize() {
             //Particule.particules = new Particule[bigParticules + smallParticule];
-            Particule.particules = new Particule[10];
+            Particule.particules = new Particule[100];
 
             graphics.PreferredBackBufferWidth = 1280; // set this value to the desired width of your window
             graphics.PreferredBackBufferHeight = 720; // set this value to the desired height of your window
@@ -50,9 +50,10 @@ namespace Brownien {
             var t2 = Content.Load<Texture2D>("pictures/big_blue");
 
             for (var i = 0; i < Particule.particules.Length; i++) {
-                var b = new Big(new Vector3(i * 50, i * 50, 0));
+                var b = new Big(new Vector3(i * 32, i * 32, 0));
                 b.texture = new Random().Next(0, 2) == 0 ? t1 : t2;
-                b.mass = (float) (new Random().NextDouble() * 5f);
+                b.mass = .5f + (float) (new Random().NextDouble() * 1f);
+                b.size = 32 * b.mass;
             }
 
             drawer = new SpriteBatch(GraphicsDevice);
@@ -63,10 +64,7 @@ namespace Brownien {
                 Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            foreach (var particule in Particule.particules) {
-                particule.update(gameTime);
-                particule.calcCollision();
-            }
+            Particule.update(gameTime);
 
             base.Update(gameTime);
         }
@@ -85,7 +83,7 @@ namespace Brownien {
                 var texture = particule.getTexture();
                 if (texture != null)
                     drawer.Draw(texture, new Vector2(particule.position.X, particule.position.Y),
-                        null, Color.White, 0, new Vector2(1, 1), 1f, 0, 0);
+                        null, Color.White, 0, new Vector2(1, 1), particule.size / 32, 0, 0);
             }
 
             drawer.End();

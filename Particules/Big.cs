@@ -9,11 +9,11 @@ namespace Brownien.Particules {
 
         public Big(Vector3 position) : base(position) {
             var rnd = new Random();
-            speed = new Vector3((float) rnd.NextDouble() * 26 - 13, (float) rnd.NextDouble() * 26 - 13,
-                (float) rnd.NextDouble() * 50 - 25);
+            speed = new Vector3((float) rnd.NextDouble() * 300-150, (float) rnd.NextDouble() * 300-150,
+                0);
         }
 
-        public override void update(GameTime time) {
+        public void update(GameTime time) {
             var tmpPos = position + speed;
 
             if (tmpPos.X <= 0 || tmpPos.X + 64 >= Game1.graphics.PreferredBackBufferWidth) {
