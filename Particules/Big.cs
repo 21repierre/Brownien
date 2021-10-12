@@ -7,10 +7,9 @@ namespace Brownien.Particules {
         public Texture2D texture;
 
 
-        public Big(Vector3 position) : base(position) {
+        public Big(Vector2 position) : base(position) {
             var rnd = new Random();
-            speed = new Vector3((float) rnd.NextDouble() * 300-150, (float) rnd.NextDouble() * 300-150,
-                0);
+            speed = new Vector2((float) rnd.NextDouble() * 300-150, (float) rnd.NextDouble() * 300-150);
         }
 
         public void update(GameTime time) {

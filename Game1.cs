@@ -24,10 +24,10 @@ namespace Brownien {
 
         protected override void Initialize() {
             //Particule.particules = new Particule[bigParticules + smallParticule];
-            Particule.particules = new Particule[100];
+            Particule.particules = new Particule[1000];
 
-            graphics.PreferredBackBufferWidth = 1280; // set this value to the desired width of your window
-            graphics.PreferredBackBufferHeight = 720; // set this value to the desired height of your window
+            graphics.PreferredBackBufferWidth = 1920; // set this value to the desired width of your window
+            graphics.PreferredBackBufferHeight = 300; // set this value to the desired height of your window
             graphics.ApplyChanges();
 
 
@@ -48,12 +48,16 @@ namespace Brownien {
 
             var t1 = Content.Load<Texture2D>("pictures/big");
             var t2 = Content.Load<Texture2D>("pictures/big_blue");
-
+            var size = 4f;
+            var res = (int) Math.Floor(graphics.PreferredBackBufferWidth / (2 * size));
             for (var i = 0; i < Particule.particules.Length; i++) {
-                var b = new Big(new Vector3(i * 32, i * 32, 0));
+                var x = i % res * 2 * size;
+                var y = (float) (Math.Floor(i * 2 * size / graphics.PreferredBackBufferWidth) * 2 * size);
+                //Console.WriteLine(x + " - " + y);
+                var b = new Big(new Vector2(x, y));
                 b.texture = new Random().Next(0, 2) == 0 ? t1 : t2;
                 b.mass = .5f + (float) (new Random().NextDouble() * 1f);
-                b.size = 32 * b.mass;
+                b.size = size/2; // * b.mass;
             }
 
             drawer = new SpriteBatch(GraphicsDevice);

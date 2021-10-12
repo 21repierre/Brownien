@@ -10,17 +10,19 @@ namespace Brownien.Particules {
         private static readonly float deltaT = 0.1f;
         public float mass = 1;
 
-        public Vector3 position;
+        public Vector2 position;
         public float size = 32;
-        protected Vector3 speed;
+        protected Vector2 speed;
+        protected Vector2 acceleration;
+        private static float k = 0;
 
-        protected Particule(Vector3 position) {
+        protected Particule(Vector2 position) {
             this.position = position;
             particules[particuleCounter] = this;
             particuleCounter++;
         }
 
-        public Vector3 center => position + new Vector3(size, size, size);
+        public Vector2 center => position + new Vector2(size, size);
 
         public abstract Texture2D getTexture();
 
@@ -37,9 +39,9 @@ namespace Brownien.Particules {
                 Vector2 i1, i2;
                 if (findCircleIntersect(pos1.X, pos1.Y, size, pos2.X, pos2.Y, size, out i1,
                     out i2) > 0) {
-                    var tangent = new Vector3(i1.X - i2.X, i1.Y - i2.Y, 0);
+                    var tangent = new Vector2(i1.X - i2.X, i1.Y - i2.Y);
                     tangent.Normalize();
-                    var normal = new Vector3(-tangent.Y, tangent.X, 0);
+                    var normal = new Vector2(-tangent.Y, tangent.X);
 
                     var v1T = tangent.dot(speed1);
                     var v2T = tangent.dot(speed2);
@@ -71,8 +73,8 @@ namespace Brownien.Particules {
                 var endPos1 = pos1 + speed1;
                 var endPos2 = pos2 + speed2;
 
-                var tempPos1 = new Vector3(pos1.X, pos1.Y, pos1.Z);
-                var tempPos2 = new Vector3(pos2.X, pos2.Y, pos2.Z);
+                var tempPos1 = new Vector2(pos1.X, pos1.Y);
+                var tempPos2 = new Vector2(pos2.X, pos2.Y);
 
                 while (tempPos1.LengthSquared() < endPos1.LengthSquared() &&
                        tempPos2.LengthSquared() < endPos2.LengthSquared()) {
@@ -89,9 +91,9 @@ namespace Brownien.Particules {
                     if (inters > 0) {
                         Console.WriteLine("COLLISION " + inters);
 
-                        var tangent = new Vector3(inter1.X - inter2.X, inter1.Y - inter2.Y, 0);
+                        var tangent = new Vector2(inter1.X - inter2.X, inter1.Y - inter2.Y);
                         tangent.Normalize();
-                        var normal = new Vector3(-tangent.Y, tangent.X, 0);
+                        var normal = new Vector2(-tangent.Y, tangent.X);
 
                         var v1T = tangent.dot(speed1);
                         var v2T = tangent.dot(speed2);
@@ -119,8 +121,16 @@ namespace Brownien.Particules {
         public static void update(GameTime time) {
             foreach (var particule in particules) {
                 //particule.position += particule.speed * (float) time.ElapsedGameTime.TotalSeconds;
-                var position = particule.position + particule.speed * (float) time.ElapsedGameTime.TotalSeconds;
-
+                var r = new Vector2(1,0);
+                particule.acceleration = (-k * particule.speed + r) / particule.mass;
+                //Console.WriteLine(particule.acceleration);
+                particule.speed += particule.acceleration;
+                var gr = new GaussianRandom();
+                r = 50 * new Vector2((float) gr.NextGaussian(), (float) gr.NextGaussian());
+                particule.speed = r;
+                //var position = particule.position + particule.speed * (float) time.ElapsedGameTime.TotalSeconds;
+                var position = particule.position + particule.speed * (float) Math.Sqrt(time.ElapsedGameTime.TotalSeconds);
+                
                 if (position.X <= 0 || position.X + 2 * particule.size >= Game1.graphics.PreferredBackBufferWidth)
                     particule.speed.X = -particule.speed.X;
                 else if (position.Y <= 0 || position.Y + 2 * particule.size >= Game1.graphics.PreferredBackBufferHeight) particule.speed.Y = -particule.speed.Y;
