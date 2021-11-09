@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using Brownien.Particules;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -24,7 +25,7 @@ namespace Brownien {
 
         protected override void Initialize() {
             //Particule.particules = new Particule[bigParticules + smallParticule];
-            Particule.particules = new Particule[1000];
+            Particule.particules = new Particule[1024];
 
             graphics.PreferredBackBufferWidth = 1920; // set this value to the desired width of your window
             graphics.PreferredBackBufferHeight = 300; // set this value to the desired height of your window
@@ -57,7 +58,7 @@ namespace Brownien {
                 var b = new Big(new Vector2(x, y));
                 b.texture = new Random().Next(0, 2) == 0 ? t1 : t2;
                 b.mass = .5f + (float) (new Random().NextDouble() * 1f);
-                b.size = size/2; // * b.mass;
+                b.size = size / 2; // * b.mass;
             }
 
             drawer = new SpriteBatch(GraphicsDevice);
@@ -68,7 +69,10 @@ namespace Brownien {
                 Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            Particule.update(gameTime);
+            Window.Title = "Brownien - " + 1 / gameTime.ElapsedGameTime.TotalSeconds + " FPS";
+
+            for (var i = 0; i < 15; i++)
+                new Thread(() => { Particule.update((float) gameTime.ElapsedGameTime.TotalSeconds, i); }).Start();
 
             base.Update(gameTime);
         }

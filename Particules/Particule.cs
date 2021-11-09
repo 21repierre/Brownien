@@ -8,13 +8,13 @@ namespace Brownien.Particules {
         private static int particuleCounter;
 
         private static readonly float deltaT = 0.1f;
+        private static readonly float k = 0;
+        protected Vector2 acceleration;
         public float mass = 1;
 
         public Vector2 position;
         public float size = 32;
         protected Vector2 speed;
-        protected Vector2 acceleration;
-        private static float k = 0;
 
         protected Particule(Vector2 position) {
             this.position = position;
@@ -118,26 +118,31 @@ namespace Brownien.Particules {
             }
         }
 
-        public static void update(GameTime time) {
-            foreach (var particule in particules) {
-                //particule.position += particule.speed * (float) time.ElapsedGameTime.TotalSeconds;
-                var r = new Vector2(1,0);
-                particule.acceleration = (-k * particule.speed + r) / particule.mass;
-                //Console.WriteLine(particule.acceleration);
-                particule.speed += particule.acceleration;
+        public static void update(float time, int index) {
+            var start = index * particules.Length / 16;
+            var end = (index + 1) * particules.Length / 16;
+            for (var i = start; i < end; i++) {
+                var particule = particules[i];
+
+                // Mise à jour de la vitesse avec une vitesse aléatoire
                 var gr = new GaussianRandom();
-                r = 50 * new Vector2((float) gr.NextGaussian(), (float) gr.NextGaussian());
-                particule.speed = r;
-                //var position = particule.position + particule.speed * (float) time.ElapsedGameTime.TotalSeconds;
-                var position = particule.position + particule.speed * (float) Math.Sqrt(time.ElapsedGameTime.TotalSeconds);
-                
+                var r = 0.1f * new Vector2((float) gr.NextGaussian(), (float) gr.NextGaussian());
+                particule.speed += r;
+                var position = particule.position + particule.speed * (float) Math.Sqrt(time);
+
+                // Vérifier qu'on reste dans le cadre de la fenetre
                 if (position.X <= 0 || position.X + 2 * particule.size >= Game1.graphics.PreferredBackBufferWidth)
                     particule.speed.X = -particule.speed.X;
                 else if (position.Y <= 0 || position.Y + 2 * particule.size >= Game1.graphics.PreferredBackBufferHeight) particule.speed.Y = -particule.speed.Y;
 
+
                 foreach (var other in particules)
-                    if (other != particule)
+                    if (other != particule) {
+                        // Détection de particule
                         if ((position - other.position).Length() <= other.size + particule.size) {
+                            /*
+                             * Collision détecté, on traite comme une collision élastique
+                             */
                             var v1 = particule.speed;
                             var x1 = position;
                             var v2 = other.speed;
@@ -147,8 +152,10 @@ namespace Brownien.Particules {
                             particule.speed = v1p;
                             other.speed = v2p;
                         }
+                    }
+                       
 
-                particule.position += particule.speed * (float) time.ElapsedGameTime.TotalSeconds;
+                particule.position += particule.speed * time;
             }
         }
 
@@ -206,3 +213,4 @@ namespace Brownien.Particules {
         }
     }
 }
+//Coucou Pierre, ça va ? Moi oui. Passe le bonjour à Hugo ! (message du 19 octobre 2021)
