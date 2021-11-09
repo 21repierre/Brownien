@@ -140,6 +140,10 @@ namespace Brownien.Particules {
                     if (other != particule) {
                         // Détection de particule
                         if ((position - other.position).Length() <= other.size + particule.size) {
+                            if (other.GetType() == typeof(Target)) {
+                                Console.WriteLine(position + " - " + other.position + " - " + (position - other.position));
+                            }
+
                             /*
                              * Collision détecté, on traite comme une collision élastique
                              */
@@ -150,10 +154,12 @@ namespace Brownien.Particules {
                             var v1p = v1 - 2 * other.mass / (particule.mass + other.mass) * (v1 - v2).dot(x1 - x2) / (x1 - x2).LengthSquared() * (x1 - x2);
                             var v2p = v2 - 2 * particule.mass / (particule.mass + other.mass) * (v2 - v1).dot(x2 - x1) / (x2 - x1).LengthSquared() * (x2 - x1);
                             particule.speed = v1p;
-                            other.speed = v2p;
+                            if (other.GetType() != typeof(Target)) {
+                                other.speed = v2p;
+                            }
                         }
                     }
-                       
+
 
                 particule.position += particule.speed * time;
             }

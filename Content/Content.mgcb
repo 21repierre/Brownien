@@ -37,3 +37,15 @@
 /processorParam:TextureFormat=Color
 /build:pictures/bigpart_blue.png;pictures/big_blue.png
 
+#begin pictures/target.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:pictures/target.png
+

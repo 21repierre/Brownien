@@ -8,11 +8,9 @@ using Microsoft.Xna.Framework.Input;
 namespace Brownien {
     public class Game1 : Game {
         public static GraphicsDeviceManager graphics;
-        public static bool stopDrawing;
 
         public static Game1 instance;
-        private readonly int bigParticules = 1;
-        private readonly int smallParticule = 10;
+        private readonly int numOfParticules = 1024;
         private SpriteBatch drawer;
         private Matrix globalTransformation;
 
@@ -25,7 +23,7 @@ namespace Brownien {
 
         protected override void Initialize() {
             //Particule.particules = new Particule[bigParticules + smallParticule];
-            Particule.particules = new Particule[1024];
+            Particule.particules = new Particule[numOfParticules + 1];
 
             graphics.PreferredBackBufferWidth = 1920; // set this value to the desired width of your window
             graphics.PreferredBackBufferHeight = 300; // set this value to the desired height of your window
@@ -39,27 +37,31 @@ namespace Brownien {
         }
 
         protected override void LoadContent() {
-            /*var big1 = new Big(new Vector3(100,100f,0));
-            var big2 = new Big(new Vector3(300, 300, 0));
-            var big3 = new Big(new Vector3(200, 200, 0));
-            
-            big1.texture = Content.Load<Texture2D>("pictures/big");
-            big2.texture = Content.Load<Texture2D>("pictures/big_blue");
-            big3.texture = Content.Load<Texture2D>("pictures/big_blue");*/
+            Target.texture = Content.Load<Texture2D>("pictures/target");
 
             var t1 = Content.Load<Texture2D>("pictures/big");
             var t2 = Content.Load<Texture2D>("pictures/big_blue");
-            var size = 4f;
+            const float size = 8f;
             var res = (int) Math.Floor(graphics.PreferredBackBufferWidth / (2 * size));
-            for (var i = 0; i < Particule.particules.Length; i++) {
-                var x = i % res * 2 * size;
-                var y = (float) (Math.Floor(i * 2 * size / graphics.PreferredBackBufferWidth) * 2 * size);
+            var resh = (int) Math.Floor(graphics.PreferredBackBufferHeight / (2 * size));
+            for (var i = 0; i < numOfParticules; i++) {
+                // var x = i % res * 2 * size;
+                // var y = (float) (Math.Floor(i * 2 * size / graphics.PreferredBackBufferWidth) * 2 * size);
+                var x = (float) (Math.Floor(i * 2 * size / graphics.PreferredBackBufferHeight) * 2 * size);
+                var y = i % resh * 2 * size;
                 //Console.WriteLine(x + " - " + y);
-                var b = new Big(new Vector2(x, y));
-                b.texture = new Random().Next(0, 2) == 0 ? t1 : t2;
-                b.mass = .5f + (float) (new Random().NextDouble() * 1f);
-                b.size = size / 2; // * b.mass;
+                var b = new Big(new Vector2(x, y)) {
+                    texture = new Random().Next(0, 2) == 0 ? t1 : t2, 
+                    mass = .5f + (float) (new Random().NextDouble() * 1f), 
+                    size = size / 2
+                };
+                // * b.mass;
             }
+
+            var target = new Target(new Vector2(1500, 200)) {
+                size = 80f,
+                mass = 1e2f,
+            };
 
             drawer = new SpriteBatch(GraphicsDevice);
         }
@@ -69,7 +71,7 @@ namespace Brownien {
                 Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            Window.Title = "Brownien - " + 1 / gameTime.ElapsedGameTime.TotalSeconds + " FPS";
+            Window.Title = "Brownien - " + Math.Round(1 / gameTime.ElapsedGameTime.TotalSeconds) + " FPS";
 
             for (var i = 0; i < 15; i++)
                 new Thread(() => { Particule.update((float) gameTime.ElapsedGameTime.TotalSeconds, i); }).Start();
@@ -82,7 +84,6 @@ namespace Brownien {
         }
 
         protected override void Draw(GameTime gameTime) {
-            if (stopDrawing) return;
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             drawer.Begin(SpriteSortMode.Immediate, null, null, null, null, null, globalTransformation);
@@ -91,7 +92,7 @@ namespace Brownien {
                 var texture = particule.getTexture();
                 if (texture != null)
                     drawer.Draw(texture, new Vector2(particule.position.X, particule.position.Y),
-                        null, Color.White, 0, new Vector2(1, 1), particule.size / 32, 0, 0);
+                        null, Color.White, 0, new Vector2(1, 1), particule.size / 64, 0, 0);
             }
 
             drawer.End();
