@@ -12,7 +12,7 @@ namespace Brownien {
 
         public static Game1 instance;
         public static bool end;
-        private readonly float minAbsRate = 0.2f;
+        private readonly float minAbsRate = 0.1f;
         private readonly int numOfParticules = 1024;
         private SpriteBatch drawer;
         public float endTime;
@@ -56,7 +56,7 @@ namespace Brownien {
             const float size = 8f;
             var res = (int) Math.Floor(graphics.PreferredBackBufferWidth / (2 * size));
             var resh = (int) Math.Floor(graphics.PreferredBackBufferHeight / (2 * size));
-            var middle = (numOfParticules - 1) * 4*size * size / graphics.PreferredBackBufferHeight;
+            var middle = (numOfParticules - 1) * 4 * size * size / graphics.PreferredBackBufferHeight;
             Console.WriteLine(resh);
             for (var i = 0; i < numOfParticules; i++) {
                 // var x = i % res * 2 * size;
@@ -98,12 +98,14 @@ namespace Brownien {
 
                 var origins = "";
                 var targets = "";
+                var totSpeeds = Vector2.Zero;
 
                 foreach (var particule in Particule.particules) {
                     if (particule.GetType() == typeof(Big)) {
-                        if (particule.absorbed) {
+                        if (!particule.absorbed) {
                             var distFromOrigin = Math.Round((particule.center - particule.origin).Length(), 0).ToString();
                             origins += distFromOrigin + "\n";
+                            totSpeeds += particule.speed;
                         }
 
                         var distFromTarg = particule.absorbed ? "0" : Math.Round((Particule.particules[numOfParticules].center - particule.center).Length(), 0).ToString();
@@ -111,8 +113,10 @@ namespace Brownien {
                     }
                 }
 
-                File.AppendAllText("../../../origins.txt", origins);
-                File.AppendAllText("../../../targets.txt", targets);
+                Console.WriteLine(totSpeeds);
+                File.AppendAllText("../../../datas/origins.txt", origins);
+                File.AppendAllText("../../../datas/targets.txt", targets);
+                File.AppendAllText("../../../datas/speeds.txt", totSpeeds.Length().ToString() + "\n");
             }
 
             base.Update(gameTime);
@@ -140,6 +144,8 @@ namespace Brownien {
 
             // Affichage du temps
             drawer.DrawString(ColorTexture.ARIAL_20, "Temps: " + (end ? endTime : (float) Math.Round(gameTime.TotalGameTime.TotalSeconds, 1)) + "s", new Vector2(10, 10), Color.White);
+            drawer.DrawString(ColorTexture.ARIAL_20, "Avancement: " + Math.Min(Math.Round(Particule.absorbedCount / (numOfParticules * minAbsRate) * 100, 1), 100) + "%", new Vector2(10, 30), Color.White);
+
             // Simulation finie
             if (end) {
                 var str = "Le patient est guéri";

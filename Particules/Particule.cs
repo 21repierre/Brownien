@@ -18,7 +18,7 @@ namespace Brownien.Particules {
 
         public Vector2 position;
         public float size = 32;
-        protected Vector2 speed;
+        public Vector2 speed;
         public Vector2 origin;
 
         protected Particule(Vector2 position) {
