@@ -2,19 +2,19 @@
 
 namespace Brownien {
     public sealed class GaussianRandom {
+        private readonly Random _random;
         private bool _hasDeviate;
         private double _storedDeviate;
-        private readonly Random _random;
 
         public GaussianRandom(Random random = null) {
             _random = random ?? new Random();
         }
 
         /// <summary>
-        /// Obtains normally (Gaussian) distributed random numbers, using the Box-Muller
-        /// transformation.  This transformation takes two uniformly distributed deviates
-        /// within the unit circle, and transforms them into two independently
-        /// distributed normal deviates.
+        ///     Obtains normally (Gaussian) distributed random numbers, using the Box-Muller
+        ///     transformation.  This transformation takes two uniformly distributed deviates
+        ///     within the unit circle, and transforms them into two independently
+        ///     distributed normal deviates.
         /// </summary>
         /// <param name="mu">The mean of the distribution.  Default is zero.</param>
         /// <param name="sigma">The standard deviation of the distribution.  Default is one.</param>

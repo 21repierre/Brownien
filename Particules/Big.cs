@@ -9,18 +9,15 @@ namespace Brownien.Particules {
 
         public Big(Vector2 position) : base(position) {
             var rnd = new Random();
-            speed = new Vector2((float) rnd.NextDouble() * 300-150, (float) rnd.NextDouble() * 300-150);
+            //speed = new Vector2((float) rnd.NextDouble() * 10 - 5, (float) rnd.NextDouble() * 10 - 5);
         }
 
         public void update(GameTime time) {
             var tmpPos = position + speed;
 
-            if (tmpPos.X <= 0 || tmpPos.X + 64 >= Game1.graphics.PreferredBackBufferWidth) {
+            if (tmpPos.X <= 0 || tmpPos.X + 64 >= Game1.graphics.PreferredBackBufferWidth)
                 speed.X = -speed.X;
-            }
-            else if (tmpPos.Y <= 0 || tmpPos.Y + 64 >= Game1.graphics.PreferredBackBufferHeight) {
-                speed.Y = -speed.Y;
-            }
+            else if (tmpPos.Y <= 0 || tmpPos.Y + 64 >= Game1.graphics.PreferredBackBufferHeight) speed.Y = -speed.Y;
 
             /*
              * TODO:

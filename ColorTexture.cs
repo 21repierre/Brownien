@@ -9,7 +9,7 @@ namespace Brownien {
 
         public static void load(GraphicsDevice device) {
             WHITE = new Texture2D(device, 1, 1);
-            WHITE.SetData(new Color[] {Color.White});
+            WHITE.SetData(new[] {Color.White});
         }
     }
 }

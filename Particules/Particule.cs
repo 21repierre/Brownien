@@ -1,10 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Brownien.Particules {
     public abstract class Particule {
-        private const float deltaT = 0.1f;
         public static Particule[] particules;
         private static int particuleCounter;
         public static int absorbedCount;
@@ -15,11 +15,12 @@ namespace Brownien.Particules {
         private Particule attachedTo;
         private bool frozen;
         public float mass = 1;
+        public Vector2 origin;
 
         public Vector2 position;
+        public List<Vector2> positions = new List<Vector2>();
         public float size = 32;
-        public Vector2 speed;
-        public Vector2 origin;
+        public Vector2 speed = Vector2.Zero;
 
         protected Particule(Vector2 position) {
             this.position = position;
@@ -38,10 +39,15 @@ namespace Brownien.Particules {
 
             for (var i = start; i < end; i++) {
                 var particule = particules[i];
+                if (particule.GetType() == typeof(Target)) {
+                    continue;
+                }
+
                 if (particule.absorbed) continue;
 
                 if (particule.frozen) {
-                    if ((particule.attachedTo.position - particule.position).Length() <= particule.attachedTo.size / 2) {
+                    if ((particule.attachedTo.position - particule.position).Length() <=
+                        particule.attachedTo.size / 2) {
                         particule.absorbed = true;
                         absorbedCount++;
                     } else {
@@ -52,14 +58,15 @@ namespace Brownien.Particules {
                 }
 
                 // Mise à jour de la vitesse avec une vitesse aléatoire
-                var r = 0.1f * new Vector2((float) gaussian.NextGaussian(), (float) gaussian.NextGaussian());
+                var r = 2f * new Vector2((float) gaussian.NextGaussian(), (float) gaussian.NextGaussian());
                 particule.speed += r;
                 var position = particule.position + particule.speed * (float) Math.Sqrt(time);
 
                 // Vérifier qu'on reste dans le cadre de la fenetre
                 if (position.X <= 0 || position.X + 2 * particule.size >= Game1.graphics.PreferredBackBufferWidth)
                     particule.speed.X = -particule.speed.X;
-                else if (position.Y <= 0 || position.Y + 2 * particule.size >= Game1.graphics.PreferredBackBufferHeight) particule.speed.Y = -particule.speed.Y;
+                else if (position.Y <= 0 || position.Y + 2 * particule.size >= Game1.graphics.PreferredBackBufferHeight)
+                    particule.speed.Y = -particule.speed.Y;
 
 
                 foreach (var other in particules)
@@ -72,23 +79,33 @@ namespace Brownien.Particules {
                             var x1 = position;
                             var v2 = other.speed;
                             var x2 = other.position;
-                            var v1p = v1 - 2 * other.mass / (particule.mass + other.mass) * (v1 - v2).dot(x1 - x2) / (x1 - x2).LengthSquared() * (x1 - x2);
-                            var v2p = v2 - 2 * particule.mass / (particule.mass + other.mass) * (v2 - v1).dot(x2 - x1) / (x2 - x1).LengthSquared() * (x2 - x1);
-                            //particule.speed = v1p;
+                            var v1p = v1 - 2 * other.mass / (particule.mass + other.mass) * (v1 - v2).dot(x1 - x2) /
+                                (x1 - x2).LengthSquared() * (x1 - x2);
+                            var v2p = v2 - 2 * particule.mass / (particule.mass + other.mass) * (v2 - v1).dot(x2 - x1) /
+                                (x2 - x1).LengthSquared() * (x2 - x1);
+                            particule.speed = v1p;
+                            if (float.IsNaN(v1p.X)) {
+                                particule.speed = Vector2.Zero;
+                            }
+
                             if (other.GetType() != typeof(Target)) {
-                                //other.speed = v2p;
+                                other.speed = v2p;
+                                if (float.IsNaN(v2p.X)) {
+                                    other.speed = Vector2.Zero;
+                                }
                             } else {
                                 //La particule rencontre une cible
                                 particule.frozen = true;
                                 particule.attachedTo = other;
                                 Vector2 outPos;
-                                findCircleIntersect(position, other.position, particule.size / 2, other.size / 2, out outPos, out _);
+                                findCircleIntersect(position, other.position, particule.size / 2, other.size / 2,
+                                    out outPos, out _);
                                 particule.position = outPos;
                                 particule.speed = Vector2.Zero;
                             }
                         }
 
-
+                particule.positions.Add(particule.position);
                 particule.position += particule.speed * time;
             }
         }
