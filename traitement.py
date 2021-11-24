@@ -59,18 +59,18 @@ print("Coeeficient de diffusion: ", posMoy / (2 * 2 * durMoy))
 
 fig, axes = plt.subplots(3,2)
 
-axes[0,0].hist(origin, bins=len(set(origin))//5, density=True)#, range=(0,max(origin)))
+axes[0,0].hist(origin, bins=len(set(origin))//5)
 axes[0,0].set_title("Origine")
 
-axes[0,1].hist(target, bins=len(set(target))//2, density=True)
+axes[0,1].hist(target, bins=len(set(target))//2)
 axes[0,1].set_title("Cible")
 
-axes[1,0].hist(position, bins=len(set(position)), density=True)
+axes[1,0].hist(position, bins=len(set(position)))
 axes[1,0].set_title("Position")
 
-axes[1,1].hist(speed, bins=len(set(speed)), density=True)
+axes[1,1].hist(speed, bins=len(set(speed)))
 axes[1,1].set_title("Vitesse")
 
-axes[2,0].hist(duration, bins=len(set(duration)), density=True)
+axes[2,0].hist(duration, bins=len(set(duration)))
 axes[2,0].set_title("Durées")
 plt.show()

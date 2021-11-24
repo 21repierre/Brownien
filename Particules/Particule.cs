@@ -69,8 +69,8 @@ namespace Brownien.Particules {
                     particule.speed.Y = -particule.speed.Y;
 
 
-                foreach (var other in particules)
-                    if (other != particule) // Détection de particule
+                foreach (var other in particules) {
+                    if (other.GetType() == typeof(Target) && other != particule) // Détection de particule
                         if ((position - other.position).Length() <= (other.size + particule.size) / 2) {
                             /*
                              * Collision détecté, on traite comme une collision élastique
@@ -104,6 +104,7 @@ namespace Brownien.Particules {
                                 particule.speed = Vector2.Zero;
                             }
                         }
+                }
 
                 particule.positions.Add(particule.position);
                 particule.position += particule.speed * time;
