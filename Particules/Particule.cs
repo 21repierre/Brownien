@@ -11,7 +11,6 @@ namespace Brownien.Particules {
         private static readonly GaussianRandom gaussian = new GaussianRandom();
 
         public bool absorbed;
-        protected Vector2 acceleration;
         private Particule attachedTo;
         private bool frozen;
         public float mass = 1;
@@ -21,6 +20,7 @@ namespace Brownien.Particules {
         public List<Vector2> positions = new List<Vector2>();
         public float size = 32;
         public Vector2 speed = Vector2.Zero;
+        public Vector2 acceleration = Vector2.Zero;
 
         protected Particule(Vector2 position) {
             this.position = position;
@@ -57,10 +57,15 @@ namespace Brownien.Particules {
                     continue;
                 }
 
+                particule.acceleration += 1 / particule.mass * (-Vars.k * particule.speed + 0.1f * new Vector2((float) gaussian.NextGaussian(), (float) gaussian.NextGaussian()));
+                particule.speed += particule.acceleration * (float) Math.Sqrt(time);
+                var position = particule.position + particule.speed * (float) Math.Sqrt(time);
+                /*
                 // Mise à jour de la vitesse avec une vitesse aléatoire
                 var r = 2f * new Vector2((float) gaussian.NextGaussian(), (float) gaussian.NextGaussian());
                 particule.speed += r;
                 var position = particule.position + particule.speed * (float) Math.Sqrt(time);
+                */
 
                 // Vérifier qu'on reste dans le cadre de la fenetre
                 if (position.X <= 0 || position.X + 2 * particule.size >= Game1.graphics.PreferredBackBufferWidth)
